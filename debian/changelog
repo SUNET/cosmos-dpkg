@@ -1,3 +1,10 @@
+cosmos (1.2-2) unstable; urgency=low
+
+  * Add Homepage link.
+  * Add watch file that points towards auto-generated gitorious tarball.
+
+ -- Simon Josefsson <simon@josefsson.org>  Mon, 05 Mar 2012 15:23:00 +0100
+
 cosmos (1.2-1) unstable; urgency=low
 
   * New upstream release.

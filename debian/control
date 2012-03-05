@@ -5,6 +5,7 @@ Priority: optional
 Build-Depends: debhelper (>= 8), help2man, rsync, devscripts
 Standards-Version: 3.9.3
 DM-Upload-Allowed: yes
+Homepage: http://josefsson.org/cosmos/
 
 Package: cosmos
 Architecture: all
