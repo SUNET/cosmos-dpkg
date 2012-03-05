@@ -1,3 +1,9 @@
+cosmos (1.1-2) yubico; urgency=low
+
+  * Bump Standards-Version.
+
+ -- Simon Josefsson <simon@josefsson.org>  Thu, 01 Mar 2012 09:58:11 +0100
+
 cosmos (1.1-1) yubico; urgency=low
 
   * New upstream release.

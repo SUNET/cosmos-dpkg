@@ -3,7 +3,7 @@ Maintainer: Simon Josefsson <simon@josefsson.org>
 Section: admin
 Priority: optional
 Build-Depends: debhelper (>= 8), help2man, rsync, devscripts
-Standards-Version: 3.9.2
+Standards-Version: 3.9.3
 DM-Upload-Allowed: yes
 
 Package: cosmos
