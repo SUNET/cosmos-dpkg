@@ -1,0 +1,193 @@
+Cosmos - A simple Configuration Management System
+
+   cosmos, noun, /ˈkɒzməs, -moʊs/ [koz-muhs, -mohs]
+
+     1. the world or universe regarded as an orderly, harmonious system.
+     2. a complete, orderly, harmonious system.
+     3. order; harmony. 
+
+   κόσμος (genitive κόσμου) m, second declension; (kosmos)
+
+     1. order
+     2. lawful order, government
+     3. mode, fashion
+     4. ornament, decoration
+     5. honour, credit
+     6. ruler
+     7. world, universe, the earth
+     8. mankind
+
+Introduction
+------------
+
+Cosmos install/delete files on systems and execute custom-written
+scripts to perform sysadmin tasks.  Cosmos is intended to be used with
+a version controlled repository that hold the Cosmos "model" for a
+particular machine or set of machines.  The repository is usually
+centralized, and Cosmos help you fetch and verify the integrity and
+authenticity before using files from it.
+
+Cosmos configuration lives in /etc/cosmos/ by default.  You may use
+the environment variable COSMOS_CONF_DIR to specify a separate
+configuration directory.  The directory should contain the
+configuration file cosmos.conf itself and the various *.d/
+sub-directories which holds the extensible implementation.  The
+configuration file is read before parsing command line arguments.
+
+Using a version controlled repository is optional but recommended.
+The repository is normally initialized by running 'cosmos clone VCURL'
+to download a remote repository.  Currently 'git://' URLs are
+supported.  For example:
+
+  cosmos clone git://git.example.org/git/your-cosmos.git
+
+The default place for the Cosmos repository is /var/cache/cosmos/repo.
+The path is specified in cosmos.conf by setting the COSMOS_REPO
+environment variable.
+
+Normally you use the same repository for several machines, so you have
+to specify the paths within the repository that should be used for the
+machine you are configuring.  Set the environment variable
+COSMOS_REPO_MODELS in cosmos.conf to specify a list of colon separated
+paths.  A list of paths is useful to aggregate scripts common to all
+or a group of systems while preserving the ability to have a
+per-server directory as well.
+
+For example, the machine "someserver.example.org" could use a path
+where files for many systems are put, and a special path for that
+system only.
+
+  COSMOS_REPO_MODELS="$COSMOS_REPO/someserver.example.org:$COSMOS_REPO/global"
+
+When 'cosmos update' is invoked it will first update the repository
+(e.g., 'git pull') and then recursively copy (using rsync) each of the
+paths in COSMOS_REPO_MODELS into the path used by Cosmos to perform
+its work, the Cosmos "model".
+
+NOTE: If you have files named the same in multiple COSMOS_REPO_MODELS
+directories, the file from the FIRST directory is the one that will be
+copied to the target directory.  For the example above, files in the
+"$COSMOS_REPO/someserver.example.org" directory takes precedence over
+the "$COSMOS_REPO/global" directory.
+
+The default place for the Cosmos "model" for your system is
+/var/cache/cosmos/model.  The path is specified in cosmos.conf by
+setting the COSMOS_MODEL environment variable.  You may also override
+it using the --root (or -r for short) on the command line.
+
+It is below the COSMOS_MODEL path that you will find files that will
+be applied to the machine.
+
+To understand what Cosmos does, consider the following file system
+tree structure:
+
+   /etc/cosmos/cosmos.conf
+   /var/cache/cosmos/model/overlay/root/.ssh/foobar
+   /var/cache/cosmos/model/delete/etc/somewhere/file-to-be-removed
+
+The cosmos.conf file contains this:
+
+COSMOS_MODEL=/var/cache/cosmos/model
+COSMOS_ROOT=/
+
+The content of the two other files are irrelevant here.
+
+The /var/cache/cosmos/model/overlay/root/.ssh/foobar file holds a SSH
+configuration file to be installed as /root/.ssh/foobar.  (The file
+may more realistically be .authorized_keys, but I'm using a different
+example filename to reduce the risk of accidental overwrites of that
+critical file when you test configurations.)
+
+The /var/cache/cosmos/model/delete/etc/somewhere/file-to-be-removed is
+a placeholder file to indicate that the file
+/etc/somewhere/file-to-be-removed should be removed.  Below we'll
+assume that you have a real file /etc/somewhere/file-to-be-removed on
+your system that should be removed.
+
+You can dry-run cosmos by using --dry-run (or -n for short).  In this
+setup it would print the following.  It doesn't do anything!  No files
+are removed and nothing is rsync'ed.
+
+root@latte:~# cosmos -n apply
+rm -f "/"/"./etc/somewhere/file-to-be-removed"
+rsync --archive /var/cache/cosmos/model/overlay/ /
+root@latte:~# 
+
+This dry mode is not as useful as it could be, because you only see
+that rsync will be invoked but not what it would do.  To run cosmos in
+a semi-dry mode, which will invoke rsync in dry mode, there is the
+--dry-tasks (or -N for short).
+
+root@latte:~# cosmos -N apply
+rm -f "/"/"./etc/somewhere/file-to-be-removed"
+sending incremental file list
+root/.ssh/
+root/.ssh/foobar
+
+sent 89 bytes  received 20 bytes  218.00 bytes/sec
+total size is 4  speedup is 0.04 (DRY RUN)
+root@latte:~# 
+
+If you think the output from the dry runs looks harmless, you can run
+it for real.  Here the --verbose (or -v fort short) mode is enabled,
+otherwise the command is silent.
+
+root@latte:~# cosmos -v apply
+40delete: Removing './etc/somewhere/file-to-be-removed'
+60overlay: Invoking rsync --archive -v /var/cache/cosmos/model/overlay/ /
+sending incremental file list
+root/.ssh/
+root/.ssh/foobar
+
+sent 133 bytes  received 36 bytes  338.00 bytes/sec
+total size is 4  speedup is 0.02
+root@latte:~# 
+
+This illustrate the fundamental task that cosmos does.
+
+Task scripts
+------------
+
+All executable files in the pre-tasks.d and post-tasks.d sub-directory
+of the Cosmos model directory are invoked in order, sorted by 'sort'.
+The scripts can do essentially anything, which is useful but can be
+dangerous unless you are careful.  To write proper task scripts you
+should consider the following guidelines.
+
+* Write fast scripts!
+
+  The script may be invoked many times, sometimes frequently, and
+  should finish quickly.  A simple way to achieve this is to wrap most
+  of the commands on the script in a if-clause that checks for the
+  existance of some stamp file.  Either like this:
+
+  if test -f /var/spool/cosmos/stamps/foobar.stamp; then
+     apt-get install foobar
+     ...
+     mkdir -p /var/spool/cosmos/stamps
+     touch /var/spool/cosmos/stamps/foobar.stamp
+  fi
+
+  Or without the need for a stamp file like this:
+
+  if test -f /usr/bin/foobar; then
+     apt-get install foobar
+  fi
+
+* No interactive prompts
+
+  The scripts may run unattended so they should not rely on having a
+  user present.
+
+  Exceptions may include some initial bootstrapping code if you make
+  sure to always run those interactively and make sure that they are
+  never invoked again.
+
+* Respect the COSMOS_DRY_TASK environment variable
+
+  This enable 'cosmos -N apply' to be more useful to the sysadmin, not
+  having to 'sh -x' trace the task scripts.
+
+* Use the COSMOS_VERBOSE environment variable when useful
+
+  This enable 'cosmos -v apply' to produce interesting output.

@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# Copyright (C) 2012 Simon Josefsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+self=`basename $0`
+
+MODEL_POST_TASKS=$COSMOS_MODEL/post-tasks.d
+
+if ! test -d "$MODEL_POST_TASKS"; then
+    test -z "$COSMOS_VERBOSE" || echo "$self: post-tasks is a no-op"
+    exit 0
+fi
+
+parts=$(echo `find -L $MODEL_POST_TASKS/ -mindepth 1 -maxdepth 1 \
+    -type f -name '[0-9]*' -executable \! -name \*~ | sort`)
+
+for part in $parts; do
+    if test -n "$COSMOS_DRY_RUN"; then
+	test -z "$COSMOS_VERBOSE" || echo "$self: invoking (dry-run) $part $@"
+	echo "$part" "$@"
+    elif test -n "$COSMOS_DRY_TASKS"; then
+	test -z "$COSMOS_VERBOSE" || echo "$self: invoking (dry-tasks) $part $@"
+	"$part" "$@"
+    else
+	test -z "$COSMOS_VERBOSE" || echo "$self: invoking $part $@"
+	"$part" "$@"
+    fi
+done

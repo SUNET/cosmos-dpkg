@@ -1,0 +1,156 @@
+#!/bin/sh
+
+# Copyright (C) 2012 Simon Josefsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+self=`basename $0`
+
+usage ()
+{
+    echo "\
+Usage: cosmos [OPTION...] COMMAND [COMMAND-OPTION...]
+
+Cosmos is meant for system administrators who wants to centralize and
+automate system configuration and package installation.
+
+The COMMAND specify the action sequence performed by the tool.
+
+Mandatory arguments to long options are mandatory for short options too.
+
+  -r, --root=ROOT           specify alternate root path to install files to
+
+  -n, --dry-run             do nothing except explain what should be done
+  -N, --dry-tasks           dry run but rsync/tasks are invoked in dry mode
+
+  -v, --verbose             explain what is being done
+
+  -h, --help                show this help text and exit
+  -V, --version             show version information and exit
+
+The environment variable COSMOS_CONF_DIR may specify a path to the
+configuration directory where the file cosmos.conf is read before
+command line parameters are parsed.  The file is sourced as a shell
+script.  If COSMOS_CONF_DIR is not set, the path /etc/cosmos is used.
+
+Report bugs to <simon@josefsson.org>." 1>&2
+}
+
+version ()
+{
+    echo "\
+cosmos (Cosmos) 1.1
+Copyright (C) 2012 Simon Josefsson
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Simon Josefsson."
+}
+
+# Read configuration file.
+{
+    if test -z "$COSMOS_CONF_DIR"; then
+	COSMOS_CONF_DIR="/etc/cosmos"
+    fi
+    COSMOS_CONF="$COSMOS_CONF_DIR/cosmos.conf"
+    export COSMOS_CONF_DIR COSMOS_CONF
+
+    if test -e "$COSMOS_CONF"; then
+	set -a
+	. "$COSMOS_CONF"
+	set +a
+    fi
+}
+
+# Command line parsing.
+{
+    while test $# -gt 0; do
+	case "$1" in
+	    --root | -r )
+		shift
+		if test $# = 0; then
+		    echo "$self: missing argument for --root" 1>&2
+		    echo "Try 'cosmos --help' for more information." 1>&2
+		    exit 1
+		fi
+		COSMOS_ROOT=$1
+		shift ;;
+	    --root=* )
+		COSMOS_ROOT=`echo "X$1" | sed -e 's/^X--root=//'`
+		shift ;;
+	    --dry-run | -n)
+		COSMOS_DRY_RUN=y
+		shift ;;
+	    --dry-tasks | -N)
+		COSMOS_DRY_TASKS=y
+		shift ;;
+	    --verbose | -v)
+		COSMOS_VERBOSE=y
+		shift ;;
+	    --help | -h )
+		usage
+		exit 0 ;;
+	    --version | -V )
+		version
+		exit 0 ;;
+	    -- )
+        # Stop option processing
+		shift
+		break ;;
+	    -* )
+		echo "$self: unknown option $1" 1>&2
+		echo "Try 'cosmos --help' for more information." 1>&2
+		exit 1 ;;
+	    * )
+		break ;;
+	esac
+    done
+
+    if test $# -eq 0; then
+	usage
+	exit 0
+    fi
+
+    export COSMOS_ROOT
+    export COSMOS_DRY_RUN
+    export COSMOS_DRY_TASKS
+    export COSMOS_VERBOSE
+}
+
+cmd="$1"
+shift
+
+dir="$COSMOS_CONF_DIR/$cmd.d"
+
+if ! test -d "$dir"; then
+    echo "$self: unknown command '$cmd'" 1>&2
+    echo "Try 'cosmos --help' for more information." 1>&2
+    exit 1
+fi
+
+parts=$(echo `find $dir/ -mindepth 1 -maxdepth 1 \
+    -type f -executable -name '[0-9]*' \! -name \*~ | sort`)
+
+if test -z "$parts"; then
+    echo "$self: nothing to do?!" 1>&2
+    exit 1
+fi
+
+for part in $parts; do
+    "$part" "$@"
+done
+
+exit 0

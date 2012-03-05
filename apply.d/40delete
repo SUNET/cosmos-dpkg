@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Copyright (C) 2012 Simon Josefsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+self=`basename $0`
+
+MODEL_DELETE=$COSMOS_MODEL/delete
+
+if ! test -d "$MODEL_DELETE"; then
+    test -z "$COSMOS_VERBOSE" || echo "$self: delete is a no-op"
+    exit 0
+fi
+
+if test -n "$COSMOS_DRY_RUN$COSMOS_DRY_TASKS"; then
+    dry=echo
+else
+    dry=
+fi
+
+# FIXME: How to do -print0 loop without relying on non-POSIX read -d?
+
+cd "$MODEL_DELETE" && find . -type f -print0 | (
+    while IFS= read -r -d $'\0' file; do
+	if test -f "$COSMOS_ROOT"/"$file"; then
+	    test -z "$COSMOS_VERBOSE" || echo "$self: Removing '$file'"
+	    $dry rm -f "$COSMOS_ROOT"/"$file"
+	fi
+    done
+)

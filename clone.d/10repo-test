@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# Copyright (C) 2012 Simon Josefsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+self=`basename $0`
+
+if test -z "$COSMOS_REPO"; then	 
+    echo "$self: error: repository directory not configured" 1>&2
+    echo "$self: Try to set COSMOS_REPO in $COSMOS_CONF." 1>&2
+    exit 1
+fi
+
+if test -d "$COSMOS_REPO"; then	 
+    echo "$self: error: repository directory $COSMOS_REPO already exists" 1>&2
+    echo "$self: Remove it if you want to clone a new repository." 1>&2
+    exit 1
+fi
+
+if test -z "$1"; then	 
+    echo "$self: error: no repository to clone" 1>&2
+    echo "$self: Try 'cosmos clone git://git.example.org/git/your-cosmos.git'." 1>&2
+    exit 1
+fi

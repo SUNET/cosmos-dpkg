@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# Copyright (C) 2012 Simon Josefsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+self=`basename $0`
+
+MODEL_OVERLAY="$COSMOS_MODEL/overlay"
+
+if ! test -d $MODEL_OVERLAY; then
+    test -z "$COSMOS_VERBOSE" || echo "$self: overlay is a no-op"
+    exit 0
+fi
+
+if test -n "$COSMOS_VERBOSE"; then
+    RSYNC_ARGS="$RSYNC_ARGS -v"
+fi
+
+if test -n "$COSMOS_DRY_RUN"; then
+    dry=echo
+else
+    dry=
+fi
+
+if test -n "$COSMOS_DRY_TASKS"; then
+    RSYNC_ARGS="$RSYNC_ARGS -n -v"
+fi
+
+test -z "$COSMOS_VERBOSE" || \
+    echo "$self: Invoking rsync --archive$RSYNC_ARGS $MODEL_OVERLAY/ $COSMOS_ROOT"
+$dry rsync --archive $RSYNC_ARGS "$MODEL_OVERLAY/" "$COSMOS_ROOT"

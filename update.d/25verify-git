@@ -1,0 +1,98 @@
+#!/bin/sh
+
+# Copyright (C) 2012 Simon Josefsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+self=`basename $0`
+
+if ! test -d "$COSMOS_REPO/.git"; then
+    test -z "$COSMOS_VERBOSE" || \
+	echo "$self: ignoring non-git repository: $COSMOS_REPO" 1>&2
+    exit 0
+fi
+
+if test -z "$COSMOS_UPDATE_VERIFY"; then
+    test -z "$COSMOS_VERBOSE" \
+	|| echo "$self: not asked to verify, ignoring" 1>&2
+    exit 0
+fi
+
+GNUPGHOME="$COSMOS_CONF_DIR/gnupg"
+export GNUPGHOME
+
+if ! test -d "$GNUPGHOME"; then
+    echo "$self: error: directory does not exist: $GNUPGHOME" 1>&2
+    echo "$self: Try 'cosmos gpg --import' to add trusted keys." 1>&2
+    exit 1
+fi
+
+if test -z "$COSMOS_UPDATE_VERIFY_GIT_TAG_PATTERN"; then
+    echo "$self: error: git tag pattern not set" 1>&2
+    echo "$self: Try to set COSMOS_UPDATE_VERIFY_GIT_TAG_PATTERN in $COSMOS_CONF." 1>&2
+    exit 1
+fi
+
+tag=$(cd $COSMOS_REPO && 
+    git tag -l "$COSMOS_UPDATE_VERIFY_GIT_TAG_PATTERN" | sort | tail -1)
+
+if test -z "$tag"; then
+    echo "$self: error: no git tags found matching pattern: $COSMOS_UPDATE_VERIFY_GIT_TAG_PATTERN" 1>&2
+    echo "$self: Check repo or modify COSMOS_UPDATE_VERIFY_GIT_TAG_PATTERN in $COSMOS_CONF." 1>&2
+    exit 1
+fi
+
+test -z "$COSMOS_VERBOSE" || echo "$self: verifying tag: $tag" 1>&2
+
+if test -n "$COSMOS_VERBOSE"; then
+    GIT_CHECKOUT_ARGS=
+else
+    GIT_CHECKOUT_ARGS=" -q"
+fi
+if test -n "$COSMOS_DRY_RUN$COSMOS_DRY_TASKS"; then
+    dry=echo
+else
+    dry=
+fi
+
+test -z "$COSMOS_VERBOSE" || \
+    echo "$self: invoking git: cd \"$COSMOS_REPO\" && git checkout $GIT_CHECKOUT_ARGS $tag && git tag -v $tag"
+
+# FIXME: 'git tag -v' is verbose by default and there is no -q to
+# silence it.  Therefor, we have to redirect stdout and stderr to
+# /dev/null.  When there is an error, this results in no output which
+# is not ideal.  In this situation, use 'cosmos update -v' to get the
+# output.
+
+cd $COSMOS_REPO && \
+    $dry git checkout $GIT_CHECKOUT_ARGS $tag && (
+    if test -n "$COSMOS_VERBOSE"; then
+	$dry git tag -v $tag
+    elif test -n "$COSMOS_DRY_RUN$COSMOS_DRY_TASKS"; then
+	echo 'git tag -v $tag > /dev/null 2>&1'
+    else
+	git tag -v $tag > /dev/null 2>&1
+    fi
+)
+
+# FIXME: Should we protect against removed tags?  An attacker that
+# controls the remote repository could remove tags in the repo to make
+# machines find an older signed tag.  The attacker would then achieve
+# rolling back the machine to a potentially vulnerable state.  By
+# remembering the last verified tag, and checking that the new tag
+# sorts higher than the old one, that attack is solved.  DoS'ing the
+# connection to the git repository is always possible, though, but it
+# will only caused newer updates to be applied, not rolling back
+# earlier updates.

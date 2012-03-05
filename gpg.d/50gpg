@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# Copyright (C) 2012 Simon Josefsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+self=`basename $0`
+
+GNUPGHOME="$COSMOS_CONF_DIR/gnupg"
+export GNUPGHOME
+
+if ! test -d "$GNUPGHOME"; then
+    mkdir -m 700 "$GNUPGHOME"
+fi
+
+if test -n "$COSMOS_DRY_RUN"; then
+    echo "gpg $@"
+elif test -n "$COSMOS_DRY_TASKS"; then
+    test -z "$COSMOS_VERBOSE" || \
+	echo "$self: invoking (dry-tasks) gpg --dry-run $@"
+    gpg --dry-run "$@"
+else
+    test -z "$COSMOS_VERBOSE" || echo "$self: invoking gpg $@"
+    gpg "$@"
+fi
