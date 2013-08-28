@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2012 Simon Josefsson
+# Copyright (C) 2012-2013 Simon Josefsson
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,8 +51,8 @@ Report bugs to <simon@josefsson.org>." 1>&2
 version ()
 {
     echo "\
-cosmos (Cosmos) 1.2
-Copyright (C) 2012 Simon Josefsson
+cosmos (Cosmos) 1.3
+Copyright (C) 2012-2013 Simon Josefsson
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.

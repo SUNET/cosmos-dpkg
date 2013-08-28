@@ -20,18 +20,25 @@ Cosmos - A simple Configuration Management System
 Introduction
 ------------
 
-Cosmos install/delete files on systems and execute custom-written
-scripts to perform sysadmin tasks.  Cosmos is intended to be used with
-a version controlled repository that hold the Cosmos "model" for a
-particular machine or set of machines.  The repository is usually
-centralized, and Cosmos help you fetch and verify the integrity and
-authenticity before using files from it.
+Cosmos is a computer system administration tool that execute scripts
+and install files on machines.  Typically it is used to manage a fleet
+of server machines for an organisation.  Cosmos is designed in a
+minimalistic way so that it easy to start to use without significant
+changes to the machines, and it works well in parallel with other
+system administration tools.  Cosmos requires a POSIX shell and rsync.
+
+A version control system with a strong security model (e.g., git using
+GnuPG to sign tags) is recommended for standard usage.  The version
+controlled repository hold the Cosmos "model" for a set of machines.
+The repository is usually centralized, and Cosmos help you fetch and
+verify the integrity and authenticity (using GnuPG) before using files
+from it.
 
 Cosmos configuration lives in /etc/cosmos/ by default.  You may use
 the environment variable COSMOS_CONF_DIR to specify a separate
 configuration directory.  The directory should contain the
 configuration file cosmos.conf itself and the various *.d/
-sub-directories which holds the extensible implementation.  The
+sub-directories which holds the extensible Cosmos implementation.  The
 configuration file is read before parsing command line arguments.
 
 Using a version controlled repository is optional but recommended.

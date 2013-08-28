@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Simon Josefsson
+# Copyright (C) 2012-2013 Simon Josefsson
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-VERSION=1.2
+VERSION=1.3
 
 DESTDIR?=
 prefix=/usr
@@ -25,10 +25,8 @@ INSTALL=install
 INSTALL_EXE=$(INSTALL) -D --mode 755
 INSTALL_DATA=$(INSTALL) -D --mode 0644
 
-D_APPLY=apply.d/10model-test apply.d/20run-pre-tasks		\
-	apply.d/30archive-before-delete apply.d/40delete	\
-	apply.d/50archive-before-overlay apply.d/60overlay	\
-	apply.d/70run-post-tasks
+D_APPLY=apply.d/10model-test apply.d/20run-pre-tasks apply.d/40delete	\
+	apply.d/60overlay apply.d/70run-post-tasks
 D_CLONE=clone.d/10repo-test clone.d/20clone-git clone.d/90repo-check
 D_UPDATE=update.d/10repo-test update.d/20update-git	\
 	update.d/25verify-git update.d/90update-model
