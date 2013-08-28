@@ -3,9 +3,10 @@ Maintainer: Simon Josefsson <simon@josefsson.org>
 Section: admin
 Priority: optional
 Build-Depends: debhelper (>= 8), help2man, rsync, devscripts
-Standards-Version: 3.9.3
-DM-Upload-Allowed: yes
+Standards-Version: 3.9.4
 Homepage: http://josefsson.org/cosmos/
+Vcs-Browser: https://gitorious.org/cosmos/cosmos-dpkg
+Vcs-Git: git://gitorious.org/cosmos/cosmos-dpkg.git
 
 Package: cosmos
 Architecture: all
