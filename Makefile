@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2013 Simon Josefsson
+# Copyright (C) 2012-2014 Simon Josefsson
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-VERSION=1.3
+VERSION=1.4
 
 DESTDIR?=
 prefix=/usr
@@ -88,10 +88,8 @@ distcheck: dist
 	make -C cosmos-$(VERSION) check
 	rm -rf cosmos-$(VERSION)
 
-KEYID=B565716F
-
 release: distcheck
 	head -1 NEWS | grep "^Version $(VERSION) released"
-	gpg --detach-sign --default-key $(KEYID) cosmos-$(VERSION).tar.gz
+	gpg --detach-sign cosmos-$(VERSION).tar.gz
 	gpg --verify cosmos-$(VERSION).tar.gz.sig
 	cp cosmos-$(VERSION).tar.gz cosmos-$(VERSION).tar.gz.sig ../releases/cosmos/
