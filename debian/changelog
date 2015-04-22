@@ -5,6 +5,7 @@ cosmos (1.4-2) unstable; urgency=low
   * Make debian/copyright confirm to DEP5.
   * Add debian/upstream-signing-key.pgp and update debian/watch.
   * Update Standards-Version from 3.9.4 to 3.9.6.
+  * Bump compat to 9.  Depend on debhelper>=9.
 
  -- Simon Josefsson <simon@josefsson.org>  Wed, 22 Apr 2015 11:27:19 +0200
 
