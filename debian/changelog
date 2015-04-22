@@ -1,3 +1,13 @@
+cosmos (1.4-2) unstable; urgency=low
+
+  * Move to collab-maint.
+  * Add debian/gbp.conf and update debian/README.source.
+  * Make debian/copyright confirm to DEP5.
+  * Add debian/upstream-signing-key.pgp and update debian/watch.
+  * Update Standards-Version from 3.9.4 to 3.9.6.
+
+ -- Simon Josefsson <simon@josefsson.org>  Wed, 22 Apr 2015 11:27:19 +0200
+
 cosmos (1.4-1) unstable; urgency=low
 
   * New upstream release.

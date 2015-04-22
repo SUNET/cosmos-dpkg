@@ -1,5 +1,10 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Cosmos
+Upstream-Contact: Simon Josefsson <simon@josefsson.org>
+Source: http://josefsson.org/cosmos/
+
 Files: *
-Copyright: © 2012 Simon Josefsson <simon@josefsson.org>
+Copyright: © 2012-2014 Simon Josefsson <simon@josefsson.org>
 License: GPL-3+
- The full text of the GPL is distributed as COPYING in Cosmos's source,
+ The full text of the GPL is distributed as COPYING in the source code,
  and is distributed in /usr/share/common-licenses/GPL-3 on Debian systems.

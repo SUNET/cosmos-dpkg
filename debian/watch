@@ -1,2 +1,2 @@
 version=3
-https://gitorious.org/cosmos/cosmos/archive-tarball/cosmos-v([0-9.]+)
+opts=pgpsigurlmangle=s/$/.sig/ http://josefsson.org/cosmos/cosmos-(.+).tar.gz
