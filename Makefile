@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2014 Simon Josefsson
+# Copyright (C) 2012-2016 Simon Josefsson
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,13 +13,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-VERSION=1.4
+VERSION=1.5
 
 DESTDIR?=
-prefix=/usr
+prefix?=/usr
 bindir=${prefix}/bin
-etcdir=/etc
 mandir=${prefix}/share/man
+ifeq (${prefix},/usr)
+etcdir=/etc
+else
+etcdir=${prefix}/etc
+endif
 
 INSTALL=install
 INSTALL_EXE=$(INSTALL) -D --mode 755

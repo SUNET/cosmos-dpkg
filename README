@@ -30,7 +30,7 @@ system administration tools.  Cosmos requires a POSIX shell and rsync.
 A version control system with a strong security model (e.g., git using
 GnuPG to sign tags) is recommended for standard usage.  The version
 controlled repository hold the Cosmos "model" for a set of machines.
-The repository is usually centralized, and Cosmos help you fetch and
+The repository is usually centralized, and Cosmos helps you fetch and
 verify the integrity and authenticity (using GnuPG) before using files
 from it.
 
@@ -43,10 +43,10 @@ configuration file is read before parsing command line arguments.
 
 Using a version controlled repository is optional but recommended.
 The repository is normally initialized by running 'cosmos clone VCURL'
-to download a remote repository.  Currently 'git://' URLs are
-supported.  For example:
+to download a remote repository.  Currently 'https://' and 'git://'
+URLs are supported.  For example:
 
-  cosmos clone git://git.example.org/git/your-cosmos.git
+  cosmos clone https://git.example.org/git/your-cosmos.git
 
 The default place for the Cosmos repository is /var/cache/cosmos/repo.
 The path is specified in cosmos.conf by setting the COSMOS_REPO
