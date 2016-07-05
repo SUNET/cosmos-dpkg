@@ -2,7 +2,7 @@ cosmos (1.5-1) unstable; urgency=low
 
   * New upstream release.
   * Update debian/upstream-signing-key.pgp.
-  * Use https URL in Vcs-Browser.
+  * Use https URLs in Vcs-Browser and Vcs-Git.
   * Update Standards-Version from 3.9.6 to 3.9.8.
 
  -- Simon Josefsson <simon@josefsson.org>  Tue, 05 Jul 2016 13:21:57 +0200
