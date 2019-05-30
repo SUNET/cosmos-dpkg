@@ -2,11 +2,11 @@ Source: cosmos
 Maintainer: Simon Josefsson <simon@josefsson.org>
 Section: admin
 Priority: optional
-Build-Depends: debhelper (>= 9), help2man, rsync, devscripts
-Standards-Version: 3.9.8
+Build-Depends: debhelper (>= 10), help2man, rsync, devscripts
+Standards-Version: 4.3.0
 Homepage: http://josefsson.org/cosmos/
-Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/cosmos.git
-Vcs-Git: https://anonscm.debian.org/git/collab-maint/cosmos.git
+Vcs-Browser: https://gitlab.com/jas/cosmos
+Vcs-Git: https://gitlab.com/jas/cosmos.git
 
 Package: cosmos
 Architecture: all

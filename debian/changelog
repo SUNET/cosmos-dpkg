@@ -1,6 +1,8 @@
 cosmos (1.5-2) unstable; urgency=low
 
-  * No changes, just a rebuild using modern toolchain.
+  * Bump compat to 10.  Depend on debhelper>=10.
+  * Point Vcs-* URLs to gitlab.
+  * Update Standards-Version from 3.9.8 to 4.3.0.
 
  -- Simon Josefsson <simon@josefsson.org>  Thu, 30 May 2019 23:09:52 +0200
 
