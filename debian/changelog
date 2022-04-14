@@ -1,3 +1,11 @@
+cosmos (1.5-2~sunet20220414) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Add git branch name detection in update.d/20update-git.
+  * Clearly show which tag is being used in update.d/25-verify-git.
+
+ -- Fredrik Thulin <fredrik@thulin.net>  Thu, 14 Apr 2022 07:24:01 +0000
+
 cosmos (1.5-2) unstable; urgency=low
 
   * Bump compat to 10.  Depend on debhelper>=10.

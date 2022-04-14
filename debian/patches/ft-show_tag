@@ -1,0 +1,46 @@
+Description: Clearly show the tag being used.
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: https://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: 2022-04-14
+
+--- cosmos-1.5.orig/update.d/25verify-git
++++ cosmos-1.5/update.d/25verify-git
+@@ -78,15 +78,24 @@ test -z "$COSMOS_VERBOSE" || \
+ 
+ cd $COSMOS_REPO && \
+     $dry git checkout $GIT_CHECKOUT_ARGS $tag && (
+-    if test -n "$COSMOS_VERBOSE"; then
+-	$dry git tag -v $tag
+-    elif test -n "$COSMOS_DRY_RUN$COSMOS_DRY_TASKS"; then
++    if test -z "$COSMOS_QUIET"; then
++        # Clearly show which commit is being used, unless told to be really quiet.
++        echo "$self: --------------"
++        echo "$self: Verifying tag:"
++        git show --show-signature --no-patch
++        echo "$self: --------------"
++    fi
++    if test -n "$COSMOS_DRY_RUN$COSMOS_DRY_TASKS"; then
+ 	echo 'git tag -v $tag > /dev/null 2>&1'
+     else
+-	git tag -v $tag > /dev/null 2>&1
++	git tag -v $tag > /dev/null 2>&1 || (
++	    echo "$0: Signature validation of tag ${tag} in ${COSMOS_REPO} failed, exiting."
++	    exit 1
++	)
+     fi
+ )
+ 
++
+ # FIXME: Should we protect against removed tags?  An attacker that
+ # controls the remote repository could remove tags in the repo to make
+ # machines find an older signed tag.  The attacker would then achieve

@@ -1,0 +1,49 @@
+Description: Avoid hard-coded branch name 'master'.
+ cosmos (1.5-2~sunet20220414) unstable; urgency=low
+ .
+   * Non-maintainer upload.
+   * Add git branch name detection in update.d/20update-git.
+Author: Fredrik Thulin <fredrik@thulin.net>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: https://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: 2022-04-14
+
+--- cosmos-1.5.orig/cosmos.conf
++++ cosmos-1.5/cosmos.conf
+@@ -36,3 +36,7 @@ COSMOS_UPDATE_VERIFY=y
+ # You may enable verbosity globally instead of using -v.
+ # Usually this is not useful to set globally, use 'cosmos -v' instead.
+ #COSMOS_VERBOSE=y
++
++# The default branch for the Cosmos repository. Used when updating.
++# The default is to try and auto-detect this, falling back to 'master'.
++#COSMOS_DEFAULT_BRANCH="main"
+--- cosmos-1.5.orig/update.d/20update-git
++++ cosmos-1.5/update.d/20update-git
+@@ -40,7 +40,15 @@ fi
+ test -z "$COSMOS_VERBOSE" || \
+     echo "$self: invoking git: cd \"$COSMOS_REPO\" && git checkout $GIT_CHECKOUT_ARGS master && git pull $GIT_PULL_ARGS"
+ 
++if test -z "$COSMOS_DEFAULT_BRANCH"; then
++    _remote_head=`cd "$COSMOS_REPO" && git symbolic-ref --short refs/remotes/origin/HEAD; true`
++    _auto=`basename "$_remote_head"`
++    _branch=${_auto-'master'}
++else
++    _branch=$COSMOS_DEFAULT_BRANCH
++fi
++
+ cd "$COSMOS_REPO" && \
+-    $dry git checkout $GIT_CHECKOUT_ARGS master && \
++    $dry git checkout $GIT_CHECKOUT_ARGS "$_branch" && \
+     $dry git reset --hard && \
+     $dry git pull $GIT_PULL_ARGS
